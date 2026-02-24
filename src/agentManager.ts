@@ -15,7 +15,7 @@ export function getProjectDirPath(cwd?: string): string | null {
 	return path.join(os.homedir(), '.claude', 'projects', dirName);
 }
 
-export function launchNewTerminal(
+export async function launchNewTerminal(
 	nextAgentIdRef: { current: number },
 	nextTerminalIndexRef: { current: number },
 	agents: Map<number, AgentState>,
@@ -29,9 +29,20 @@ export function launchNewTerminal(
 	projectScanTimerRef: { current: ReturnType<typeof setInterval> | null },
 	webview: vscode.Webview | undefined,
 	persistAgents: () => void,
-): void {
+): Promise<void> {
+	const folders = vscode.workspace.workspaceFolders;
+	let cwd: string | undefined;
+	if (folders && folders.length > 1) {
+		const picked = await vscode.window.showQuickPick(
+			folders.map(f => ({ label: f.name, description: f.uri.fsPath, folder: f })),
+			{ placeHolder: 'Select workspace folder for Claude Code' },
+		);
+		if (!picked) return;
+		cwd = picked.folder.uri.fsPath;
+	} else {
+		cwd = folders?.[0]?.uri.fsPath;
+	}
 	const idx = nextTerminalIndexRef.current++;
-	const cwd = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
 	const terminal = vscode.window.createTerminal({
 		name: `${TERMINAL_NAME_PREFIX} #${idx}`,
 		cwd,
