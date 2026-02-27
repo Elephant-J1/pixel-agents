@@ -39,19 +39,37 @@ If you just want to use Pixel Agents, the easiest way is to download the [VS Cod
 git clone https://github.com/pablodelucca/pixel-agents.git
 cd pixel-agents
 npm install
-cd webview-ui && npm install && cd ..
 npm run build
 ```
 
 Then press **F5** in VS Code to launch the Extension Development Host.
 
-### Usage
+### Usage (VS Code extension)
 
 1. Open the **Pixel Agents** panel (it appears in the bottom panel area alongside your terminal)
 2. Click **+ Agent** to spawn a new Claude Code terminal and its character
 3. Start coding with Claude — watch the character react in real time
 4. Click a character to select it, then click a seat to reassign it
 5. Click **Layout** to open the office editor and customize your space
+
+### Dashboard (OpenClaw gateway)
+
+The same office UI can run as a standalone web dashboard that connects to an [OpenClaw](https://github.com/openclaw)-compatible gateway. Agents appear as characters when the gateway reports lifecycle and tool events.
+
+**Connect to a real gateway:**
+
+1. Copy `.env.example` to `.env` and set:
+   - `OPENCLAW_GATEWAY_URL` — WebSocket URL of your gateway (e.g. `wss://gateway.example.com`)
+   - `OPENCLAW_GATEWAY_TOKEN` — optional; set if the gateway requires auth
+   - `SIMULATE=false` (or omit) so the server uses the real gateway
+2. From the repo root: `npm run build` then `npm run start` (or `PORT=3001 npm run start`).
+3. Open the app at the URL the server prints (e.g. `http://localhost:3001`). The dashboard will connect to the proxy, which connects to the gateway; agents stream in as the gateway reports them.
+
+**Try it with simulated agents (no gateway):**
+
+- `npm run dev:sim` — runs the proxy and Vite dev server with a mock gateway; four test agents appear in the office.
+
+**Protocol note:** The proxy expects gateway events such as `agent.stream` with `lifecycle` (phase: start/end/error) and `tool` (phase start/done, toolName, input). If your gateway uses different event names or payloads, adjust `server/eventTranslator.ts`. Agent creation is driven by the gateway (lifecycle start); there is no “add agent” button in the dashboard.
 
 ## Layout Editor
 
