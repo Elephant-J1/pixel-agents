@@ -137,6 +137,13 @@ export class DashboardServer {
       type: 'connectionStatus',
       gateway: this.translator.getGatewayState(),
     })
+
+    const metrics = this.translator.getMetricsSnapshot()
+    this.sendTo(ws, {
+      type: 'metricsSnapshot',
+      daily: metrics.daily,
+      weekly: metrics.weekly,
+    })
   }
 
   private broadcast(msg: unknown): void {

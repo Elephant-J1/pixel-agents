@@ -40,6 +40,11 @@ export interface WorkspaceFolder {
   path: string
 }
 
+export interface MetricsSnapshot {
+  daily: { completed: number; failed: number }
+  weekly: { completed: number; failed: number }
+}
+
 export interface AgentMessageState {
   agents: number[]
   selectedAgent: number | null
@@ -51,6 +56,7 @@ export interface AgentMessageState {
   loadedAssets?: { catalog: FurnitureAsset[]; sprites: Record<string, string[][]> }
   workspaceFolders: WorkspaceFolder[]
   gatewayState: string
+  metrics: MetricsSnapshot
 }
 
 function saveAgentSeats(os: OfficeState): void {
@@ -77,6 +83,10 @@ export function useAgentMessages(
   const [loadedAssets, setLoadedAssets] = useState<{ catalog: FurnitureAsset[]; sprites: Record<string, string[][]> } | undefined>()
   const [workspaceFolders, setWorkspaceFolders] = useState<WorkspaceFolder[]>([])
   const [gatewayState, setGatewayState] = useState<string>('disconnected')
+  const [metrics, setMetrics] = useState<MetricsSnapshot>({
+    daily: { completed: 0, failed: 0 },
+    weekly: { completed: 0, failed: 0 },
+  })
 
   // Track whether initial layout has been loaded (ref to avoid re-render)
   const layoutReadyRef = useRef(false)
@@ -364,6 +374,10 @@ export function useAgentMessages(
         }
       } else if (msg.type === 'connectionStatus') {
         setGatewayState((msg.gateway as string) ?? 'disconnected')
+      } else if (msg.type === 'metricsSnapshot') {
+        const daily = (msg.daily as { completed: number; failed: number }) ?? { completed: 0, failed: 0 }
+        const weekly = (msg.weekly as { completed: number; failed: number }) ?? { completed: 0, failed: 0 }
+        setMetrics({ daily, weekly })
       } else if (msg.type === 'agentError') {
         const id = msg.id as number
         setAgentStatuses((prev) => ({ ...prev, [id]: 'error' }))
@@ -374,5 +388,5 @@ export function useAgentMessages(
     return () => unsubscribe()
   }, [getOfficeState])
 
-  return { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, workspaceFolders, gatewayState }
+  return { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, workspaceFolders, gatewayState, metrics }
 }

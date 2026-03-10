@@ -1,19 +1,22 @@
+import type { MetricsSnapshot } from '../hooks/useAgentMessages.js'
+
 interface TopBarProps {
   activeCount: number
   idleCount: number
   errorCount: number
   connectionState: string
   gatewayState: string
+  metrics: MetricsSnapshot
 }
 
-export function TopBar({ activeCount, idleCount, errorCount, connectionState, gatewayState }: TopBarProps) {
+export function TopBar({ activeCount, idleCount, errorCount, connectionState, gatewayState, metrics }: TopBarProps) {
   const isConnected = connectionState === 'connected'
   const gatewayOk = gatewayState === 'connected'
 
   return (
     <div
       style={{
-        height: 48,
+        minHeight: 56,
         flexShrink: 0,
         display: 'flex',
         alignItems: 'center',
@@ -24,7 +27,7 @@ export function TopBar({ activeCount, idleCount, errorCount, connectionState, ga
         boxShadow: 'var(--pixel-shadow)',
       }}
     >
-      <span style={{ fontSize: '22px', fontWeight: 'bold', color: 'var(--pixel-text)' }}>Pixel Agents</span>
+      <span style={{ fontSize: '26px', fontWeight: 'bold', color: 'var(--pixel-text)' }}>Pixel Agents</span>
       <span
         style={{
           width: 8,
@@ -34,9 +37,12 @@ export function TopBar({ activeCount, idleCount, errorCount, connectionState, ga
         }}
         title={isConnected && gatewayOk ? 'Connected' : 'Disconnected'}
       />
-      <span style={{ color: 'var(--pixel-text-dim)', fontSize: '18px' }}>
+      <span style={{ color: 'var(--pixel-text-dim)', fontSize: '20px' }}>
         Active: {activeCount} · Idle: {idleCount}
         {errorCount > 0 ? ` · Error: ${errorCount}` : ''}
+      </span>
+      <span style={{ color: 'var(--pixel-text-dim)', fontSize: '18px', marginLeft: 8 }}>
+        Today: {metrics.daily.completed} done, {metrics.daily.failed} failed · Week: {metrics.weekly.completed} done, {metrics.weekly.failed} failed
       </span>
     </div>
   )

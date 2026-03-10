@@ -6,6 +6,8 @@
 import { EventEmitter } from 'events'
 import type { GatewayClient } from './gatewayClient.js'
 import type { TrackedAgent, DashboardMessage, GatewayConnectionState } from './types.js'
+import type { MetricsSnapshot } from './metricsStore.js'
+import { MetricsStore } from './metricsStore.js'
 
 function basename(p: unknown): string {
   if (typeof p !== 'string') return ''
@@ -54,6 +56,7 @@ export class EventTranslator extends EventEmitter {
   private nextAgentId = 1
   private sessionToId = new Map<string, number>()
   private toolIdCounter = 0
+  private metricsStore = new MetricsStore()
 
   constructor(private gateway: GatewayClient) {
     super()
@@ -146,11 +149,13 @@ export class EventTranslator extends EventEmitter {
       if (id === undefined) return
       const agent = this.agents.get(sessionKey)
       if (agent) agent.status = 'error'
+      this.metricsStore.recordFailed()
       this.emitDashboard({
         type: 'agentError',
         id: id!,
         error: (payload?.error as string) ?? 'Unknown error',
       })
+      this.emitMetricsSnapshot()
     }
   }
 
@@ -190,7 +195,9 @@ export class EventTranslator extends EventEmitter {
           tool.completedAt = Date.now()
         }
       }
+      this.metricsStore.recordCompleted()
       this.emitDashboard({ type: 'agentToolDone', id, toolId })
+      this.emitMetricsSnapshot()
     }
   }
 
@@ -232,6 +239,19 @@ export class EventTranslator extends EventEmitter {
 
   getGatewayState(): GatewayConnectionState {
     return this.gateway.getState()
+  }
+
+  getMetricsSnapshot(): MetricsSnapshot {
+    return this.metricsStore.getSnapshot()
+  }
+
+  private emitMetricsSnapshot(): void {
+    const snapshot = this.metricsStore.getSnapshot()
+    this.emitDashboard({
+      type: 'metricsSnapshot',
+      daily: snapshot.daily,
+      weekly: snapshot.weekly,
+    })
   }
 
   private emitDashboard(msg: DashboardMessage): void {

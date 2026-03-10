@@ -124,7 +124,7 @@ function App() {
 
   const isEditDirty = useCallback(() => editor.isEditMode && editor.isDirty, [editor.isEditMode, editor.isDirty])
 
-  const { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, gatewayState } = useAgentMessages(getOfficeState, editor.setLastSavedLayout, isEditDirty)
+  const { agents, selectedAgent, agentTools, agentStatuses, subagentTools, subagentCharacters, layoutReady, loadedAssets, gatewayState, metrics } = useAgentMessages(getOfficeState, editor.setLastSavedLayout, isEditDirty)
 
   const [connectionState, setConnectionState] = useState(wsClient.getState())
   const [sidebarAgentId, setSidebarAgentId] = useState<number | null>(null)
@@ -206,6 +206,7 @@ function App() {
         errorCount={errorCount}
         connectionState={connectionState}
         gatewayState={gatewayState}
+        metrics={metrics}
       />
       <div style={{ flex: 1, display: 'flex', position: 'relative', overflow: 'hidden' }}>
         <div ref={containerRef} style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>

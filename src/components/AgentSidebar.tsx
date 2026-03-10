@@ -26,7 +26,7 @@ export function AgentSidebar({ agentId, agentTools, agentStatuses, onClose }: Ag
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-        <strong style={{ fontSize: '20px', color: 'var(--pixel-text)' }}>Agent #{agentId}</strong>
+        <strong style={{ fontSize: '24px', color: 'var(--pixel-text)' }}>Agent #{agentId}</strong>
         <button
           type="button"
           onClick={onClose}
@@ -42,13 +42,13 @@ export function AgentSidebar({ agentId, agentTools, agentStatuses, onClose }: Ag
           ×
         </button>
       </div>
-      <div style={{ fontSize: '16px', color: 'var(--pixel-text-dim)', marginBottom: 8 }}>
+      <div style={{ fontSize: '18px', color: 'var(--pixel-text-dim)', marginBottom: 8 }}>
         Status: {status}
       </div>
       {tools.length > 0 && (
-        <ul style={{ marginTop: 8, paddingLeft: 20, color: 'var(--pixel-text)' }}>
+        <ul style={{ marginTop: 8, paddingLeft: 20, color: 'var(--pixel-text)', fontSize: '18px' }}>
           {tools.map((t) => (
-            <li key={t.toolId} style={{ marginBottom: 4 }}>
+            <li key={t.toolId} style={{ marginBottom: 6 }}>
               {t.done ? '✓' : '○'} {t.status}
             </li>
           ))}
@@ -60,7 +60,8 @@ export function AgentSidebar({ agentId, agentTools, agentStatuses, onClose }: Ag
           onClick={() => vscode.postMessage({ type: 'approveExec', id: agentId, approved: true })}
           style={{
             marginTop: 8,
-            padding: '6px 12px',
+            padding: '8px 14px',
+            fontSize: '18px',
             background: 'var(--pixel-green)',
             border: '2px solid var(--pixel-border)',
             color: '#fff',

@@ -48,6 +48,11 @@ export type DashboardMessage =
   | { type: 'agentToolPermissionClear'; id: number }
   | { type: 'agentError'; id: number; error: string }
   | { type: 'connectionStatus'; gateway: GatewayConnectionState; detail?: string }
+  | {
+      type: 'metricsSnapshot'
+      daily: { completed: number; failed: number }
+      weekly: { completed: number; failed: number }
+    }
   | { type: 'settingsLoaded'; soundEnabled: boolean }
   | { type: 'characterSpritesLoaded'; characters: unknown }
   | { type: 'floorTilesLoaded'; sprites: unknown }
